@@ -132,7 +132,7 @@ graph LR
     %% SPI (purple)
     linkStyle 12,13,14,15,16,17,18,19,20,21,22,23,24 stroke:#7a3db8,stroke-width:2px
 ```
-
+![Wiring Diagram](docs/images/CJ_Fritzing_Wir_Arch_bb.png) 
 The Jetson Nano's 40-pin J41 header is utilized for all hardware communication.
 
 **Note**: _All logic operates strictly at 3.3V. The power rails have been standardized to J41 Pin 1 (3.3V) and Pin 6 (GND) to ensure a shared common ground across the SPI and I2C buses._
