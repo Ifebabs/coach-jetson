@@ -184,7 +184,7 @@ Robust embedded software must anticipate physical failures. This project is desi
 ## Development Roadmap
 - [x] ~~**Phase 1: Foundation.** Hardware acquisition, wiring architecture, and repository setup.~~
     
-- [ ] **Phase 2: Environment Monitor.** Bare-metal C driver for the BME280 (I2C) to read raw calibration registers and compute environmental data.
+- [x] ~~**Phase 2: Environment Monitor.** Bare-metal C driver for the BME280 (I2C) to read raw calibration registers and compute environmental data.~~
     
 - [ ] **Phase 3: Impact Sensor & Logic Analysis.** C/C++ SPI driver for the MCP3008. Documenting binary bit-shifting and providing Logic Analyzer captures.
     
