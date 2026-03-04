@@ -186,7 +186,7 @@ Robust embedded software must anticipate physical failures. This project is desi
     
 - [x] ~~**Phase 2: Environment Monitor.** Bare-metal C driver for the BME280 (I2C) to read raw calibration registers and compute environmental data.~~
     
-- [ ] **Phase 3: Impact Sensor & Logic Analysis.** C/C++ SPI driver for the MCP3008. Documenting binary bit-shifting and providing Logic Analyzer captures.
+- [ ] **Phase 3: Capacitive Touch & DSP Signal Processing.** C/C++ SPI driver for the MCP3008. Replaced standard physical resistors with a software-based Digital Signal Processing (DSP) algorithm. The code captures rapid bursts of ADC readings to measure the peak-to-peak amplitude of 60Hz ambient electromagnetic noise amplified by human touch. Includes hardware verification via USB Logic Analyzer.
     
 - [ ] **Phase 4: CAN Bus Integration.** Initializing the MCP2515 CAN controller. Establishing an internal loopback network to verify register configurations. _Future work will replace the loopback with a physical second node and 120 Ω bus termination._
     
