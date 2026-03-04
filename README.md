@@ -3,7 +3,7 @@
 ## Overview
 This project is an intelligent, edge-computing training assistant built on the Nvidia Jetson Nano. 
 
-The system monitors boxing form and punch velocity via a camera feed, measures physical punch impact via custom analog sensors, and tracks the environmental safety (temperature/humidity) of the training room to prevent overheating during intense sessions. 
+The system monitors boxing form and punch velocity via a camera feed, measures physical punch reaction timing via custom analog sensors, and tracks the environmental safety (temperature/humidity) of the training room to prevent overheating during intense sessions. 
 
 Rather than relying on high-level Python abstraction libraries, the sensor drivers are written from scratch in C/C++ to directly interface with hardware registers via I2C and SPI protocols. Hardware timings and protocol structures are verified using a 24 MHz sample rate USB logic analyzer capturing a 1 MHz SPI bus.
 
@@ -11,10 +11,10 @@ Rather than relying on high-level Python abstraction libraries, the sensor drive
 * **Compute Node:** Nvidia Jetson Nano (Master Device)
 * **Vision/AI:** Raspberry Pi Camera V2 (MIPI-CSI)
 * **Environment Sensor:** Bosch BME280 (I2C) - Temperature, Humidity, Pressure
-* **Impact ADC:** Microchip MCP3008 8-Channel 10-bit ADC (SPI)
+* **Touch/Timing ADC:** Microchip MCP3008 8-Channel 10-bit ADC (SPI)
 * **Network/Comms:** HiLetgo MCP2515 CAN Bus Module (Integrated MCP2515 Controller & TJA1050 Transceiver)
   * *Note on CAN:* This module integrates an 8 MHz crystal oscillator which dictates the baud rate math for the `CNF1`, `CNF2`, and `CNF3` registers. While the onboard TJA1050 transceiver is nominally a 5V component, the module is powered via the Jetson's 3.3V rail. This ensures the SPI logic lines (MISO) do not output 5V and damage the Jetson Nano. Operating the TJA1050 at 3.3V is sufficient for internal loopback testing and short benchtop runs.
-* **Hardware Debugging:** 8-Channel USB Logic Analyzer (Sigrok/PulseView)
+* **Hardware Debugging:** 8-Channel USB Logic Analyzer (Sigrok PulseView)
 
 
 ## Wiring Architecture
@@ -186,7 +186,8 @@ Robust embedded software must anticipate physical failures. This project is desi
     
 - [x] ~~**Phase 2: Environment Monitor.** Bare-metal C driver for the BME280 (I2C) to read raw calibration registers and compute environmental data.~~
     
-- [ ] **Phase 3: Capacitive Touch & DSP Signal Processing.** C/C++ SPI driver for the MCP3008. Replaced standard physical resistors with a software-based Digital Signal Processing (DSP) algorithm. The code captures rapid bursts of ADC readings to measure the peak-to-peak amplitude of 60Hz ambient electromagnetic noise amplified by human touch. Includes hardware verification via USB Logic Analyzer.
+- [ ] **Phase 3: Cognitive Reflex Target (Capacitive Touch, DSP Signal Processing & Timing).** C/C++ SPI driver for the MCP3008. (_Replaced standard physical force sensors with a software-based Digital Signal Processing (DSP) algorithm_)\
+The code captures rapid bursts of ADC readings to measure the peak-to-peak amplitude of 60Hz ambient electromagnetic noise amplified by human touch. Integrated high-resolution Linux timers (`<sys/time.h>`) to measure boxer reaction speed in milliseconds following a randomized software cue.
     
 - [ ] **Phase 4: CAN Bus Integration.** Initializing the MCP2515 CAN controller. Establishing an internal loopback network to verify register configurations. _Future work will replace the loopback with a physical second node and 120 Ω bus termination._
     
