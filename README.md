@@ -196,3 +196,14 @@ The code captures rapid bursts of ADC readings to measure the peak-to-peak ampli
 - [ ] **Phase 6: Final Integration.** Fusing the C-based sensor data with the AI vision application into a single cohesive training dashboard.
 
 
+## Signal Analysis & Hardware Verification
+
+### Phase 3: SPI & DSP Capacitive Touch Timing
+To verify the custom SPI driver and DSP timing, the SPI bus was monitored using a 24MHz USB Logic Analyzer during a reflex drill.
+
+![MCP3008 SPI Capture](docs/images/Pulseview_MCP3008_SPI_Capture.png)
+
+**Capture Breakdown:**
+* **Sample Rate:** 4 MHz capturing a 1 MHz SPI clock.
+* **MOSI (Jetson TX):** `0x01 0x80 0x00` - The C driver successfully creates the Start Bit, Single-Ended mode bit, and targets Channel 0.
+* **MISO (Sensor RX):** `0xFF 0x81 0xB9` - The MCP3008 responds with a 10-bit ADC reading of 441, showing the DSP algorithm successfully catching the mid-point of the 60Hz electromagnetic wave amplified by the boxer's touch.
