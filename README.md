@@ -188,13 +188,14 @@ Robust embedded software must anticipate physical failures. This project is desi
     
 - [x] ~~**Phase 3: Cognitive Reflex Target (Capacitive Touch, DSP Signal Processing & Timing).** C/C++ SPI driver for the MCP3008. (_Replaced standard physical force sensors with a software-based Digital Signal Processing (DSP) algorithm_)\
 The code captures rapid bursts of ADC readings to measure the peak-to-peak amplitude of 60Hz ambient electromagnetic noise amplified by human touch. Integrated high-resolution Linux timers (`<sys/time.h>`) to measure boxer reaction speed in milliseconds following a randomized software cue.~~
-    
-- [ ] **Phase 4: CAN Bus Integration.** Initializing the MCP2515 CAN controller. Establishing an internal loopback network to verify register configurations. _Future work will replace the loopback with a physical second node and 120 Ω bus termination._
+
+- [ ] **Phase 4: CAN Bus Foundation.** Initialized the MCP2515 CAN controller via SPI. Established an internal loopback network to verify register configurations. *Optimization: Transitioned from CPU-heavy polling to a non-blocking hardware interrupt architecture using the Jetson's GPIO and the Linux `poll()` system call.*    
     
 - [ ] **Phase 5: The AI Coach.** Implementing OpenCV/Pose Estimation to track shadow-boxing form and punch extension via the Pi Camera.
     
-- [ ] **Phase 6: Final Integration.** Fusing the C-based sensor data with the AI vision application into a single cohesive training dashboard.
-
+- [ ] **Phase 6: Distributed Edge Node.** Expanding the architecture to a physical multi-node network. Migrating the reflex sensor to a Raspberry Pi Zero 2 W edge device, communicating real-time punch telemetry back to the Jetson Master via a physical physical CAN Bus (CAN-H/CAN-L) differential pair.
+    
+- [ ] **Phase 7: Final Integration.** Fusing the distributed C-based sensor data (environment and remote reflex timing) with the AI vision application into a single, cohesive edge-computing training dashboard.
 
 ## Signal Analysis & Hardware Verification
 
