@@ -193,7 +193,7 @@ The code captures rapid bursts of ADC readings to measure the peak-to-peak ampli
     
 - [ ] **Phase 5: The AI Coach.** Implementing OpenCV/Pose Estimation to track shadow-boxing form and punch extension via the Pi Camera.
     
-- [ ] **Phase 6: Distributed Edge Node.** Expanding the architecture to a physical multi-node network. Migrating the reflex sensor to a Raspberry Pi Zero 2 W edge device, communicating real-time punch telemetry back to the Jetson Master via a physical physical CAN Bus (CAN-H/CAN-L) differential pair.
+- [ ] **Phase 6: Distributed Edge Node.** Expanding the architecture to a physical multi-node network. Migrating the reflex sensor to a Raspberry Pi Zero 2 W edge device, communicating real-time punch telemetry back to the Jetson Master via a physical CAN Bus (CAN-H/CAN-L) differential pair.
     
 - [ ] **Phase 7: Final Integration.** Fusing the distributed C-based sensor data (environment and remote reflex timing) with the AI vision application into a single, cohesive edge-computing training dashboard.
 
