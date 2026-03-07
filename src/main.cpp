@@ -56,7 +56,7 @@ int main() {
         // Output
         cv::imshow("Coach Jetson - AI Boxing Coach", frame);
 
-	// Break if ESC OR if the window is closedn
+		// Break if ESC OR if the window is closed
         if (cv::waitKey(1) == 27 || cv::getWindowProperty("Coach Jetson - AI Boxing Coach", cv::WND_PROP_AUTOSIZE) == -1) {
             break;
 		}
