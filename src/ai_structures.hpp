@@ -17,8 +17,8 @@ struct Person {
     std::vector<Keypoint> keypoints;
     
     // Helper to get a specific point by name
-    Keypoint get_nose() { return keypoints[0]; }
-    Keypoint get_left_wrist() { return keypoints[9]; }
-    Keypoint get_right_wrist() { return keypoints[10]; }
+    Keypoint get_nose() const { return keypoints[0]; }
+    Keypoint get_left_wrist() const { return keypoints[9]; }
+    Keypoint get_right_wrist() const { return keypoints[10]; }
 };
 
