@@ -1,3 +1,5 @@
 # Ignore compiled executables
 bin/
 models/*.engine
+*.o
+
