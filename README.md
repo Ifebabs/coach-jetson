@@ -191,7 +191,7 @@ The code captures rapid bursts of ADC readings to measure the peak-to-peak ampli
 
 - [x] ~~**Phase 4: CAN Bus Foundation.** Initialized the MCP2515 CAN controller via SPI. Established an internal loopback network to verify register configurations. *Optimization: Transitioned from CPU-heavy polling to a non-blocking hardware interrupt architecture using the Jetson's GPIO and the Linux `poll()` system call.*~~    
     
-- [ ] **Phase 5: The AI Coach.** Implementing OpenCV/Pose Estimation to track shadow-boxing form and punch extension via the Pi Camera.
+- [x] ~~**Phase 5: The AI Coach.** Implementing OpenCV/Pose Estimation to track shadow-boxing form and punch extension via the Pi Camera.~~
     
 - [ ] **Phase 6: Distributed Edge Node.** Expanding the architecture to a physical multi-node network. Migrating the reflex sensor to a Raspberry Pi Zero 2 W edge device, communicating real-time punch telemetry back to the Jetson Master via a physical CAN Bus (CAN-H/CAN-L) differential pair.
     
