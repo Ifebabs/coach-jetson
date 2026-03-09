@@ -1,11 +1,14 @@
 #include <iostream>
 #include <fstream>
+#include <thread> 
 #include <cuda_runtime_api.h>
 #include <opencv2/opencv.hpp>
+
 #include "model/ai_structures.hpp"
 #include "view/ui_render.hpp"
 #include "viewmodel/boxing_logic.hpp"
 #include "model/vision_engine.hpp"
+#include "model/hardware_sensors.hpp"
 
 // Round Timer Memory
 RoundStats current_round;
@@ -16,6 +19,14 @@ int main() {
     VisionEngine pi_eyes("models/yolov8n-pose.engine");
     // Initialize Boxing Logic
     BoxingAnalyzer logic_brain;
+
+    // START HARDWARE THREADS
+    std::thread bme_thread(bme280_polling_thread);
+    bme_thread.detach(); // Detach allows it to run freely in the background
+
+    std::thread reflex_thread(mcp3008_reflex_thread);
+    reflex_thread.detach();
+
 
     // Prepare Camera
     std::string pipeline = "nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1280, height=720, format=NV12, framerate=30/1 ! nvvidconv flip-method=6 left=280 right=1000 top=0 bottom=720 ! video/x-raw, width=640, height=640, format=BGRx ! videoconvert ! video/x-raw, format=BGR ! appsink drop=true max-buffers=1";
@@ -48,6 +59,11 @@ int main() {
         
         // --- PACK DATA AND SEND TO VIEW LAYER ---
         UIData ui_state = logic_brain.get_ui_data();
+
+        // --- INJECT HARDWARE DATA INTO UI ---
+        // Fetch the latest atomic values safely
+        ui_state.room_temp = current_temp.load();
+        ui_state.room_humidity = current_humidity.load();
 
         // --- DRAW EVERYTHING ---
         render_hud(frame, ui_state);
