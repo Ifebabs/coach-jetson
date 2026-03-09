@@ -29,7 +29,8 @@ struct Person {
 // --------------------------
 // SHADOWBOX ROUND TRACKING
 // --------------------------
-enum AppMode { FREE_PLAY, COUNTDOWN, ROUND_ACTIVE, SUMMARY };
+enum AppMode { FREE_PLAY, COUNTDOWN, ROUND_ACTIVE, SUMMARY, REFLEX_ACTIVE, REFLEX_SUMMARY };
+
 
 struct RoundStats {
     AppMode mode = FREE_PLAY;
@@ -61,7 +62,7 @@ struct RoundStats {
     }
 };
 
-extern RoundStats current_round; // Exists in main.cpp (currently ai_coach.cpp)
+extern RoundStats current_round; // Exists in main.cpp 
 
 // ------------------------
 // UI SCALING & CONSTANTS
@@ -91,6 +92,7 @@ const int BTN_W = (int)(160 * UI_SCALE);
 const int BTN_H = (int)(40 * UI_SCALE);
 
 const int START_BTN_Y = HUD_Y + HUD_H + (int)(60 * UI_SCALE); 
+const int REFLEX_BTN_Y = START_BTN_Y + (int)(50 * UI_SCALE); // Spaced 50px below
 const int TIMER_Y = START_BTN_Y + (int)(45 * UI_SCALE);
 const int END_BTN_Y = TIMER_Y + (int)(15 * UI_SCALE);
 
