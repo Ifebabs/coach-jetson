@@ -18,6 +18,11 @@ struct UIData {
     
     std::string combo_feedback;
     int64_t combo_display_timer;
+    
+    // Hardware Variables 
+    float room_temp = 0.0f;
+    float room_humidity = 0.0f;
+
 };
 
 // UI functions

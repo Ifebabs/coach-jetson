@@ -1,4 +1,5 @@
 #include "ui_render.hpp"
+#include "../model/hardware_sensors.hpp" 
 #include <iostream>
 
 // ---------------------
@@ -7,33 +8,47 @@
 void onMouse(int event, int x, int y, int flags, void* userdata) {
     if (event == cv::EVENT_LBUTTONDOWN) {
         
-        // FREE PLAY - Start Round Button 
         if (current_round.mode == FREE_PLAY) {
+            // Shadow Box Button
             if (x >= BTN_X && x <= BTN_X + BTN_W && y >= START_BTN_Y && y <= START_BTN_Y + BTN_H) {
                 current_round.reset();
                 current_round.mode = COUNTDOWN;
                 current_round.countdown_start_time = cv::getTickCount();
             }
-        }
-        // ROUND ACTIVE - End Round Early Button
-        else if (current_round.mode == ROUND_ACTIVE) {
-            if (x >= BTN_X && x <= BTN_X + BTN_W && y >= END_BTN_Y && y <= END_BTN_Y + BTN_H) {
-                current_round.mode = SUMMARY; // Eject straight to the summary screen
+            // Reflex Drill Button
+            else if (x >= BTN_X && x <= BTN_X + BTN_W && y >= REFLEX_BTN_Y && y <= REFLEX_BTN_Y + BTN_H) {
+                current_round.reset();
+                current_round.mode = REFLEX_ACTIVE;
+                start_reflex_drill.store(true); // Tell background thread to wake up
             }
         }
-        // SUMMARY - Click anywhere to dismiss
-        else if (current_round.mode == SUMMARY) {
+        else if (current_round.mode == ROUND_ACTIVE) {
+            if (x >= BTN_X && x <= BTN_X + BTN_W && y >= END_BTN_Y && y <= END_BTN_Y + BTN_H) {
+                current_round.mode = SUMMARY; 
+            }
+        }
+        // Dismiss summaries
+        else if (current_round.mode == SUMMARY || current_round.mode == REFLEX_SUMMARY) {
             current_round.mode = FREE_PLAY;
         }
     }
 }
 
+
 // -------------------
 // COACH HUD RENDERER
 // -------------------
 void render_hud(cv::Mat& frame, const UIData& ui) {
+   // --- TOP RIGHT: ENVIRONMENT DATA ---
+    char env_str[64];
+    snprintf(env_str, sizeof(env_str), "Room Env: %.1f F | %.1f%%", ui.room_temp, ui.room_humidity);
+    int baseline = 0;
+    cv::Size text_size = cv::getTextSize(env_str, cv::FONT_HERSHEY_DUPLEX, 0.6, 1, &baseline);
+    cv::putText(frame, env_str, cv::Point(frame.cols - text_size.width - 20, 30), cv::FONT_HERSHEY_DUPLEX, 0.6, cv::Scalar(200, 200, 200), 1);
+
+
     cv::Mat overlay = frame.clone();
-    
+
     cv::rectangle(overlay, cv::Point(HUD_X, HUD_Y), cv::Point(HUD_X + HUD_W, HUD_Y + HUD_H), cv::Scalar(20,20,20), -1);
     cv::addWeighted(overlay, 0.45, frame, 0.55, 0, frame);
 
@@ -92,6 +107,11 @@ void render_round_overlays(cv::Mat& frame) {
     if (current_round.mode == FREE_PLAY) { // START ROUND Button under HUD
         cv::rectangle(frame, cv::Point(BTN_X, START_BTN_Y), cv::Point(BTN_X + BTN_W, START_BTN_Y + BTN_H), cv::Scalar(0, 150, 0), -1);
         cv::putText(frame, "START ROUND", cv::Point(BTN_X + 10, START_BTN_Y + (int)(25 * UI_SCALE)), cv::FONT_HERSHEY_SIMPLEX, TXT_L, cv::Scalar(255, 255, 255), THICK_L);
+        
+        // START REFLEX Button
+        cv::rectangle(frame, cv::Point(BTN_X, REFLEX_BTN_Y), cv::Point(BTN_X + BTN_W, REFLEX_BTN_Y + BTN_H), cv::Scalar(255, 100, 0), -1); // Blue button
+        cv::putText(frame, "REFLEX DRILL", cv::Point(BTN_X + 10, REFLEX_BTN_Y + (int)(25 * UI_SCALE)), cv::FONT_HERSHEY_SIMPLEX, TXT_L, cv::Scalar(255, 255, 255), THICK_L);
+
     } 
     else if (current_round.mode == COUNTDOWN) { // 3,2,1 - FIGHT Countdown
         double elapsed = (cv::getTickCount() - current_round.countdown_start_time) / cv::getTickFrequency();
@@ -131,6 +151,49 @@ void render_round_overlays(cv::Mat& frame) {
             cv::putText(frame, "END ROUND", cv::Point(BTN_X + 15, END_BTN_Y + (int)(25 * UI_SCALE)), cv::FONT_HERSHEY_SIMPLEX, TXT_L, cv::Scalar(255, 255, 255), THICK_L);
         }
     } 
+    
+    // --- REFLEX ACTIVE UI ---
+    else if (current_round.mode == REFLEX_ACTIVE) {
+        // Check if the hardware thread finished the drill
+        if (drill_completed.load()) {
+            current_round.mode = REFLEX_SUMMARY;
+        } else {
+            // Draw Drill Status below HUD
+            int r = current_drill_round.load();
+            cv::putText(frame, "Drill: Round " + std::to_string(r) + " / 5", cv::Point(BTN_X, TIMER_Y), cv::FONT_HERSHEY_DUPLEX, 1.0 * UI_SCALE, cv::Scalar(255, 255, 255), THICK_L);
+            cv::putText(frame, "Last Reaction: " + std::to_string(last_reaction_time.load()) + " ms", cv::Point(BTN_X, TIMER_Y + 30), cv::FONT_HERSHEY_SIMPLEX, TXT_L, cv::Scalar(0, 165, 255), THICK_L);
+
+            // Draw Huge Screen Center Text
+            int text_y = frame.rows / 2 + 50;
+            if (show_punch_cue.load()) {
+                std::string cue = "PUNCH NOW!";
+                int b = 0;
+                cv::Size ts = cv::getTextSize(cue, cv::FONT_HERSHEY_DUPLEX, 3.5, THICK_XL, &b);
+                cv::putText(frame, cue, cv::Point((frame.cols/2) - (ts.width/2), text_y), cv::FONT_HERSHEY_DUPLEX, 3.5, cv::Scalar(0, 0, 255), THICK_XL); // Red
+            } else {
+                std::string wait = "Wait for it...";
+                int b = 0;
+                cv::Size ts = cv::getTextSize(wait, cv::FONT_HERSHEY_DUPLEX, 2.0, THICK_L, &b);
+                cv::putText(frame, wait, cv::Point((frame.cols/2) - (ts.width/2), text_y), cv::FONT_HERSHEY_DUPLEX, 2.0, cv::Scalar(0, 255, 255), THICK_L); // Yellow
+            }
+        }
+    }
+    
+    // --- REFLEX SUMMARY UI ---
+    else if (current_round.mode == REFLEX_SUMMARY) {
+        cv::Mat summary_overlay = frame.clone();
+        cv::rectangle(summary_overlay, cv::Point(0,0), cv::Point(frame.cols, frame.rows), cv::Scalar(30, 30, 30), -1);
+        cv::addWeighted(summary_overlay, 0.85, frame, 0.15, 0, frame);
+
+        int cx = frame.cols/2 - 180;
+        int cy = frame.rows/2 - 50; 
+        cv::putText(frame, "DRILL COMPLETE", cv::Point(cx, cy), cv::FONT_HERSHEY_DUPLEX, 1.2, cv::Scalar(255, 255, 255), 2);
+        cv::line(frame, cv::Point(cx, cy + 15), cv::Point(cx + 350, cy + 15), cv::Scalar(100, 100, 100), 2);
+        
+        cv::putText(frame, "Avg Reaction: " + std::to_string(avg_reaction_time.load()) + " ms", cv::Point(cx, cy + 60), cv::FONT_HERSHEY_SIMPLEX, 0.9, cv::Scalar(0, 165, 255), 2);
+        cv::putText(frame, "(Click anywhere to close)", cv::Point(cx + 30, cy + 120), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(150, 150, 150), 1);
+    }
+
     else if (current_round.mode == SUMMARY) { // Overlay Screen
         cv::Mat summary_overlay = frame.clone();
         cv::rectangle(summary_overlay, cv::Point(0,0), cv::Point(frame.cols, frame.rows), cv::Scalar(30, 30, 30), -1);
