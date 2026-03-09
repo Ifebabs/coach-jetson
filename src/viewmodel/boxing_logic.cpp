@@ -13,12 +13,13 @@ float calculate_angle(Keypoint a, Keypoint b, Keypoint c) {
 
 void BoxingAnalyzer::analyze_frame(const std::vector<Keypoint>& kpts, cv::Mat& frame) {
     // Draws green skeleton dots
+    /*
     for(int k = 0; k < 17; k++) {
         if(kpts[k].confidence > 0.5f) {
             cv::circle(frame, cv::Point(kpts[k].x, kpts[k].y), 4, cv::Scalar(0, 255, 0), -1);
         }
     }
-
+    */
     // --- ACTUAL LEFT ARM (MIRRORED RIGHT INDICES: 6, 8, 10) ---
     if (kpts[6].confidence > 0.5f && kpts[8].confidence > 0.5f && kpts[10].confidence > 0.5f) {
         // Blue line for Left Arm (Jab)
@@ -294,7 +295,7 @@ void BoxingAnalyzer::analyze_frame(const std::vector<Keypoint>& kpts, cv::Mat& f
 
         // Can potentially remove this:
         // Line from hip center to the nose to visualize the balance axis
-        cv::line(frame, cv::Point(hip_center_x, (kpts[11].y + kpts[12].y)/2.0f), cv::Point(head_x, kpts[0].y), cv::Scalar(255, 255, 0), 1);
+        // cv::line(frame, cv::Point(hip_center_x, (kpts[11].y + kpts[12].y)/2.0f), cv::Point(head_x, kpts[0].y), cv::Scalar(255, 255, 0), 1);
     }
 }
 
