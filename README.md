@@ -193,7 +193,7 @@ The code captures rapid bursts of ADC readings to measure the peak-to-peak ampli
     
 - [x] ~~**Phase 5: The AI Coach.** Implementing OpenCV/Pose Estimation to track shadow-boxing form and punch extension via the Pi Camera.~~
     
-- [ ] **Phase 6: Distributed Edge Node.** Expanding the architecture to a physical multi-node network. Migrating the reflex sensor to a Raspberry Pi Zero 2 W edge device, communicating real-time punch telemetry back to the Jetson Master via a physical CAN Bus (CAN-H/CAN-L) differential pair.
+- [ ] ~~**Phase 6: Distributed Edge Node.** Expanding the architecture to a physical multi-node network. Migrating the reflex sensor to a Raspberry Pi Zero 2 W edge device, communicating real-time punch telemetry back to the Jetson Master via a physical CAN Bus (CAN-H/CAN-L) differential pair.~~
     
 - [ ] **Phase 7: Final Integration.** Fusing the distributed C-based sensor data (environment and remote reflex timing) with the AI vision application into a single, cohesive edge-computing training dashboard.
 
@@ -208,3 +208,18 @@ To verify the custom SPI driver and DSP timing, the SPI bus was monitored using 
 * **Sample Rate:** 4 MHz capturing a 1 MHz SPI clock.
 * **MOSI (Jetson TX):** `0x01 0x80 0x00` - The C driver successfully creates the Start Bit, Single-Ended mode bit, and targets Channel 0.
 * **MISO (Sensor RX):** `0xFF 0x81 0xB9` - The MCP3008 responds with a 10-bit ADC reading of 441, showing the DSP algorithm successfully catching the mid-point of the 60Hz electromagnetic wave amplified by the boxer's touch.
+
+### Phase 6: CAN Bus Physical Layer Verification
+
+To figure out where the CAN signal was failing, two oscilloscope measurements were taken on the Pi Zero's MCP2515 module.
+<img width="4032" height="3024" alt="IMG_5561" src="https://github.com/user-attachments/assets/dcabad21-734d-4ae3-967f-01c5a256e427" />
+
+<img width="4032" height="3024" alt="IMG_5563" src="https://github.com/user-attachments/assets/46fbe6f6-4a3b-468e-9713-b571962b7171" />
+
+| Probe Point | VMAX | VPP | Expected |
+|---|---|---|---|
+| TXD pin (MCP2515 → TJA1050) | 3.25V | 0.00V | 3.3V logic |
+| CAN-H terminal block (physical bus) | 1.50V | 0.40V | 3.5V dominant |
+
+**Breakdown:** The MCP2515 was outputting correctly with the software, and SPI confirmed working. CAN-H only reached 1.50V because the TJA1050 transceiver requires a minimum 4.75V supply to drive the bus to valid differential levels. Both modules were powered at 3.3V, starving the transceiver. 
+### [Full analysis →](docs/PHASE6_CAN_BUS.md)
