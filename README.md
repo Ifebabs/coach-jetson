@@ -9,6 +9,71 @@ Rather than relying on high-level Python abstraction libraries, the sensor drive
 
 ![ProofOfConcept](docs/images/aicoach2.gif) 
 
+## Getting Started
+
+To get started with Coach Jetson, follow these steps.
+
+### Step 1 — Install Dependencies & System Setup
+
+This project uses hardware-accelerated AI via TensorRT and directly interfaces with the Jetson Nano's hardware registers. Ensure your environment is configured correctly before building.
+
+Ensure you are running NVIDIA JetPack and install OpenCV 4:
+```bash
+sudo apt-get update
+sudo apt-get install libopencv-dev python3-opencv
+```
+
+Enable the I2C and SPI buses on the Jetson Nano's 40-pin J41 expansion header using the Jetson I/O configuration tool:
+```bash
+sudo /opt/nvidia/jetson-io/jetson-io.py
+```
+
+Grant your user permissions to access the hardware buses without `sudo`:
+```bash
+sudo usermod -aG i2c,dialout $USER
+```
+
+> **Note:** You must reboot for the changes to take effect.
+
+---
+
+### Step 2 — Install Coach Jetson
+
+Clone the repository and compile the C++ source. The included `Makefile` handles linking OpenCV, TensorRT, and CUDA.
+```bash
+git clone https://github.com/ifebabs/coach-jetson.git
+cd coach-jetson
+make clean
+make
+```
+
+---
+
+### Step 3 — Run the AI Coach
+
+Ensure your hardware is properly connected:
+1. **Vision** — Raspberry Pi Camera V2 connected to the MIPI-CSI port
+2. **Sensors** — BME280 and MCP3008 correctly wired to the J41 header's 3.3V, I2C, and SPI pins
+
+The application requires a TensorRT engine file built locally on the Jetson. If you haven't done this yet, run:
+```bash
+trtexec --onnx=models/yolov8n-pose.onnx --saveEngine=models/yolov8n-pose.engine
+```
+
+To launch the real-time training dashboard:
+```bash
+make run
+```
+
+Or execute the binary directly:
+```bash
+./bin/ai_coach
+```
+
+To safely exit, close the window or click the camera window and press `ESC`.
+
+---
+
 ## Hardware Architecture
 * **Compute Node:** Nvidia Jetson Nano (Master Device)
 * **Vision/AI:** Raspberry Pi Camera V2 (MIPI-CSI)
