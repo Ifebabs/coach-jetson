@@ -7,6 +7,8 @@ The system monitors boxing form and punch velocity via a camera feed, measures p
 
 Rather than relying on high-level Python abstraction libraries, the sensor drivers are written from scratch in C/C++ to directly interface with hardware registers via I2C and SPI protocols. Hardware timings and protocol structures are verified using a 24 MHz sample rate USB logic analyzer capturing a 1 MHz SPI bus.
 
+![ProofOfConcept](docs/images/aicoach2.gif) 
+
 ## Hardware Architecture
 * **Compute Node:** Nvidia Jetson Nano (Master Device)
 * **Vision/AI:** Raspberry Pi Camera V2 (MIPI-CSI)
